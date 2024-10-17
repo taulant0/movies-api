@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/styles/main.css">
+  <title>Movie Search</title>
+  <style>
+    .placeholder {
+      background-color: #ccc;
+      width: 200px;
+      height: 300px;
+    }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .pagination-button {
+      margin: 0 5px;
+      padding: 10px 15px;
+      border: none;
+      cursor: pointer;
+    }
+    .pagination-button.active {
+      font-weight: bold;
+      background-color: #007bff;
+      color: white;
+    }
+  </style>
+  <script>
+    function resetPage() {
+      document.querySelector('input[name="page"]').value = 1;
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>Search for Movies 🎬</h1>
+<div class="container1">
+    <form action="/" method="POST" class="form" onsubmit="resetPage()">
+      <input type="text" name="name" placeholder="Movie name" class="form-input" value="<%= query.name || '' %>">
+      <input type="number" name="year" placeholder="Release year" class="form-input" value="<%= query.year || '' %>">
+      
+      <select name="genre" class="form-select">
+        <option value="">Select genre</option>
+        <option value="Action" <%= query.genre === 'Action' ? 'selected' : '' %>>Action</option>
+        <option value="Comedy" <%= query.genre === 'Comedy' ? 'selected' : '' %>>Comedy</option>
+        <option value="Drama" <%= query.genre === 'Drama' ? 'selected' : '' %>>Drama</option>
+        <option value="Horror" <%= query.genre === 'Horror' ? 'selected' : '' %>>Horror</option>
+        <option value="Thriller" <%= query.genre === 'Thriller' ? 'selected' : '' %>>Thriller</option>
+        <!-- Add other genres as needed -->
+      </select>
+
+      <input type="number" step="0.1" name="rating" placeholder="Minimum rating" class="form-input" value="<%= query.rating || '' %>">
+      <input type="hidden" name="page" value="<%= page %>">
+      <button type="submit" class="form-submit">Search</button>
+    </form>
+  </div>
+    <section id="cards" class="cards">
+      <% if (data) { %>
+        <% data.forEach(movie => { %>
+          <article class="card-item">
+            <% if (movie.poster_path) { %>
+              <img src="https://image.tmdb.org/t/p/w200<%= movie.poster_path %>" alt="<%= movie.title %>" class="card-poster">
+            <% } else { %>
+              <div class="placeholder"></div>
+            <% } %>
+            <h2 class="card-activity"><%= movie.title %></h2>
+            <div class="card-info">
+              <span class="card-type">Release Date: <%= movie.release_date %></span>
+              <span class="card-participants">Rating: <%= movie.vote_average %></span>
+            </div>
+          </article>
+        <% }); %>
+      <% } %>
+
+      <% if (error) { %>
+        <div id="tag-error" class="tag-error"><%= error %></div>
+      <% } %>
+    </section>
+
+    <% if (totalPages > 1) { %>
+      <nav class="pagination">
+        <% 
+          const maxButtons = 5;
+          const startPage = Math.min(Math.max(1, page - Math.floor(maxButtons / 2)), totalPages - maxButtons + 1);
+          const endPage = Math.min(totalPages, startPage + maxButtons - 1);
+        %>
+        <% for (let i = startPage; i <= endPage; i++) { %>
+          <form action="/" method="POST" class="pagination-form">
+            <input type="hidden" name="name" value="<%= query.name %>">
+            <input type="hidden" name="year" value="<%= query.year %>">
+            <input type="hidden" name="genre" value="<%= query.genre %>">
+            <input type="hidden" name="rating" value="<%= query.rating %>">
+            <input type="hidden" name="page" value="<%= i %>">
+            <button type="submit" class="pagination-button <%= i === page ? 'active' : '' %>"><%= i %></button>
+          </form>
+        <% } %>
+      </nav>
+    <% } %>
+  </div>
+</body>
+</html>
